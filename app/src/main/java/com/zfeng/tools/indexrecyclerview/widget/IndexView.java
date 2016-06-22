@@ -6,7 +6,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 /**
  * Created by zhaofeng on 16/6/21.
@@ -16,11 +18,14 @@ public class IndexView {
     public static final String LetterList="ABCDEFGHIJKLMNOPQRSTUVWXYZ#";
     private static final int base_integer=20;
     private static final int base_textSize=12;
+    private static final int base_textShadow=40;
     private Context context;
     private RecyclerView recyclerView;
     private float mDensity;             //当前屏幕密度除以160
     private float mScaledDensity;       //当前屏幕密度除以160（设置字体的尺寸）
     private float mAlphaRate;           //透明度
+    private float shadowWidth;
+    private float shadowTextSize;
 
     private int mRecyclerViewWidth;
     private int mRecyclerViewHeight;
@@ -30,6 +35,8 @@ public class IndexView {
     private int mIndexbarMarginTop;
     private int mRecyclerViewMarginRight;
     private float initStep;
+
+    Handler handler=new Handler();
 
     public IndexView(Context context,RecyclerView recyclerView)
     {
@@ -42,6 +49,8 @@ public class IndexView {
         mIndexbarMarginTop=(int)(base_integer*mDensity);
         mAlphaRate=0.5f;
 
+        shadowTextSize=mScaledDensity*base_textShadow;
+        shadowWidth=shadowTextSize*2;
 
     }
     public void onDraw(Canvas canvas)
@@ -86,6 +95,54 @@ public class IndexView {
             initTop+=initStep;
         }
     }
+    public void dispatchDraw(final Canvas canvas,boolean ifShowLetter,int currentLetterCount)
+    {
+        if(ifShowLetter)
+        {
+            Paint showLetterPaint=new Paint();
+            showLetterPaint.setTextSize(shadowTextSize);
+            showLetterPaint.setColor(Color.WHITE);
+
+            Rect rect=new Rect();
+            showLetterPaint.getTextBounds(IndexView.LetterList.charAt(currentLetterCount)+"",0,1,rect);
+
+            Paint blackShadow=new Paint();
+            blackShadow.setColor(Color.BLACK);
+            blackShadow.setAlpha(120);
+
+            float left=mRecyclerViewWidth/2-shadowWidth/2;
+            float top=mRecyclerViewHeight/2-shadowWidth;
+            float right=mRecyclerViewWidth/2+shadowWidth/2;;
+            float bottom=mRecyclerViewHeight/2;
+
+            RectF shadow=new RectF(left,top,right,bottom);
+            canvas.drawRoundRect(shadow,10*mDensity,10*mDensity,blackShadow);
+
+            float leftText=left+shadowWidth/2-rect.width()/2;
+            float topText=top+(shadowWidth+rect.height())/2;
+            canvas.drawText(LetterList.charAt(currentLetterCount)+"",leftText,topText,showLetterPaint);
+
+            /*handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float left=mRecyclerViewWidth/2-shadowWidth/2;
+                    float top=mRecyclerViewHeight/2-shadowWidth;
+                    float right=mRecyclerViewWidth/2+shadowWidth/2;;
+                    float bottom=mRecyclerViewHeight/2;
+
+                    Paint whiteShadow=new Paint();
+                    whiteShadow.setColor(Color.WHITE);
+                    whiteShadow.setAlpha(120);
+                    RectF shadow=new RectF(left,top,right,bottom);
+                    canvas.drawRoundRect(shadow,10*mDensity,10*mDensity,whiteShadow);
+                    recyclerView.invalidate();
+
+                    Log.d("IndexRecycler","postDelayed");
+                }
+            },2000);*/
+
+        }
+    }
     public RectF getRectIndex()
     {
         if(mIndexbarRect!=null){
@@ -96,5 +153,9 @@ public class IndexView {
     public float getInitStep()
     {
         return initStep;
+    }
+    public float getScaledDensity()
+    {
+        return mScaledDensity;
     }
 }
