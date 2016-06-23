@@ -35,6 +35,9 @@ public class IndexView {
     private int mIndexbarMarginTop;
     private int mRecyclerViewMarginRight;
     private float initStep;
+    Paint indexbarPaint;
+    Paint letterPaint;
+    Paint showLetterPaint;
 
     Handler handler=new Handler();
 
@@ -51,11 +54,13 @@ public class IndexView {
 
         shadowTextSize=mScaledDensity*base_textShadow;
         shadowWidth=shadowTextSize*2;
+        indexbarPaint=new Paint();
+        letterPaint=new Paint();
+        showLetterPaint=new Paint();
 
     }
     public void onDraw(Canvas canvas)
     {
-        Paint indexbarPaint=new Paint();
         indexbarPaint.setColor(Color.BLACK);
         indexbarPaint.setAlpha(120);
 
@@ -76,7 +81,6 @@ public class IndexView {
     }
     private void drawLetters(Canvas canvas)
     {
-        Paint letterPaint=new Paint();
         letterPaint.setColor(Color.WHITE);
         float textSize=(int)mScaledDensity*base_textSize;
         letterPaint.setTextSize(textSize);
@@ -99,7 +103,6 @@ public class IndexView {
     {
         if(ifShowLetter)
         {
-            Paint showLetterPaint=new Paint();
             showLetterPaint.setTextSize(shadowTextSize);
             showLetterPaint.setColor(Color.WHITE);
 
