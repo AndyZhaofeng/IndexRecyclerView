@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
@@ -19,11 +20,13 @@ public class IndexView {
     private static final int base_integer=20;
     private static final int base_textSize=12;
     private static final int base_textShadow=40;
+    private static final int base_alpha=120;
+    private static final int HIDE_LETTER=1001;
     private Context context;
     private RecyclerView recyclerView;
     private float mDensity;             //当前屏幕密度除以160
     private float mScaledDensity;       //当前屏幕密度除以160（设置字体的尺寸）
-    private float mAlphaRate;           //透明度
+    private int mAlphaRate;           //透明度
     private float shadowWidth;
     private float shadowTextSize;
 
@@ -39,7 +42,24 @@ public class IndexView {
     Paint letterPaint;
     Paint showLetterPaint;
 
-    Handler handler=new Handler();
+    Handler handler=new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+
+            if(msg.what==HIDE_LETTER)
+            {
+                /*if(mAlphaRate>0)
+                {
+                    mAlphaRate-=2;
+                    recyclerView.invalidate();
+                    handler.sendEmptyMessageDelayed(HIDE_LETTER,100);
+                }else{
+                    mAlphaRate=base_alpha;
+                }*/
+            }
+            return false;
+        }
+    });
 
     public IndexView(Context context,RecyclerView recyclerView)
     {
@@ -50,7 +70,7 @@ public class IndexView {
 
         mIndexbarWidth=(int)(base_integer*mDensity);
         mIndexbarMarginTop=(int)(base_integer*mDensity);
-        mAlphaRate=0.5f;
+        mAlphaRate=base_alpha;
 
         shadowTextSize=mScaledDensity*base_textShadow;
         shadowWidth=shadowTextSize*2;
@@ -101,6 +121,13 @@ public class IndexView {
     }
     public void dispatchDraw(final Canvas canvas,boolean ifShowLetter,int currentLetterCount)
     {
+        float left=mRecyclerViewWidth/2-shadowWidth/2;
+        float top=mRecyclerViewHeight/2-shadowWidth;
+        float right=mRecyclerViewWidth/2+shadowWidth/2;;
+        float bottom=mRecyclerViewHeight/2;
+
+        RectF shadow=new RectF(left,top,right,bottom);
+        drawShadow(ifShowLetter,shadow,canvas);
         if(ifShowLetter)
         {
             showLetterPaint.setTextSize(shadowTextSize);
@@ -108,23 +135,16 @@ public class IndexView {
 
             Rect rect=new Rect();
             showLetterPaint.getTextBounds(IndexView.LetterList.charAt(currentLetterCount)+"",0,1,rect);
+//            showLetterPaint.setAlpha((int)(255*mAlphaRate));
 
-            Paint blackShadow=new Paint();
-            blackShadow.setColor(Color.BLACK);
-            blackShadow.setAlpha(120);
+            String showText=LetterList.charAt(currentLetterCount)+"";
+            float textWidth=showLetterPaint.measureText(showText);
+            float textHeight=showLetterPaint.descent()-showLetterPaint.ascent();
+            float leftText=left+shadowWidth/2-textWidth/2;
+            float topText=top+shadowWidth/2+textHeight/3;
+            canvas.drawText(showText,leftText,topText,showLetterPaint);
 
-            float left=mRecyclerViewWidth/2-shadowWidth/2;
-            float top=mRecyclerViewHeight/2-shadowWidth;
-            float right=mRecyclerViewWidth/2+shadowWidth/2;;
-            float bottom=mRecyclerViewHeight/2;
-
-            RectF shadow=new RectF(left,top,right,bottom);
-            canvas.drawRoundRect(shadow,10*mDensity,10*mDensity,blackShadow);
-
-            float leftText=left+shadowWidth/2-rect.width()/2;
-            float topText=top+(shadowWidth+rect.height())/2;
-            canvas.drawText(LetterList.charAt(currentLetterCount)+"",leftText,topText,showLetterPaint);
-
+//            handler.sendEmptyMessage(IndexView.HIDE_LETTER);
             /*handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -145,6 +165,18 @@ public class IndexView {
             },2000);*/
 
         }
+    }
+    private void drawShadow(boolean colorBool,RectF shadow,Canvas canvas)
+    {
+        Paint blackShadow=new Paint();
+        blackShadow.setColor(Color.BLACK);
+        if(colorBool){
+            mAlphaRate=base_alpha;
+        }else{
+            mAlphaRate=0;
+        }
+        blackShadow.setAlpha(mAlphaRate);
+        canvas.drawRoundRect(shadow,10*mDensity,10*mDensity,blackShadow);
     }
     public RectF getRectIndex()
     {

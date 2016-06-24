@@ -62,45 +62,66 @@ public class IndexRecyclerView extends RecyclerView
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
-        RectF rectIndex=indexView.getRectIndex();
+//        RectF rectIndex=indexView.getRectIndex();
         int count=e.getPointerCount();
         if(count==1)
         {
-
-            if(e.getX()>rectIndex.left&&e.getX()<rectIndex.right
-                    &&e.getY()>rectIndex.top&&e.getY()<rectIndex.bottom)
+            switch (e.getAction())
             {
-                /*Log.d("IndexRecycler","e.X="+e.getX()+"  e.Y="+e.getY()+
-                        "  left="+rectIndex.left+"  right="+rectIndex.right+
-                        "  top="+rectIndex.top+"   bottom="+rectIndex.bottom);*/
-                return true;
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                case MotionEvent.ACTION_UP:
+
+                    if(checkOk(e))
+                    {
+                        return true;
+                    }
+                    break;
             }
+
         }
         return super.onInterceptTouchEvent(e);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        RectF rectIndex=indexView.getRectIndex();
-        if(e.getX()>rectIndex.left&&e.getX()<rectIndex.right
-                &&e.getY()>rectIndex.top&&e.getY()<rectIndex.bottom)
-        {
-            float height=e.getY()-indexView.getRectIndex().top;
-            int count=(int)Math.ceil(height/indexView.getInitStep());
-            if(count>0&&count<indexView.LetterList.length()+1)
-            {
-                ifShowLetter=true;
-                currentLetterCount=count-1;
-//            Log.d("IndexRecycler","count="+count+"  letter = "+indexView.LetterList.charAt(currentLetterCount));
-                invalidate();
-                return false;
-            }
-            ifShowLetter=false;
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+                if (checkOk(e)) {
+                    float height = e.getY() - indexView.getRectIndex().top;
+                    int count = (int) Math.ceil(height / indexView.getInitStep());
+                    if (count > 0 && count < indexView.LetterList.length() + 1) {
+                        ifShowLetter = true;
+                        currentLetterCount = count - 1;
+//                    Log.d("IndexRecycler","count="+count+"  letter = "+indexView.LetterList.charAt(currentLetterCount));
+                        invalidate();
+                        return true;
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                if(checkOk(e))
+                {
+                    ifShowLetter = false;
+                    invalidate();
+                    return true;
+                }
+                break;
         }
 
         return super.onTouchEvent(e);
     }
 
+    private boolean checkOk(MotionEvent e)
+    {
+        RectF rectIndex=indexView.getRectIndex();
+        if (e.getX() > rectIndex.left
+                && e.getY() > rectIndex.top && e.getY() < rectIndex.bottom) {
+            return true;
+        }
+        return false;
+    }
     @Override
     protected void dispatchDraw(Canvas canvas) {
         indexView.dispatchDraw(canvas,ifShowLetter,currentLetterCount);
