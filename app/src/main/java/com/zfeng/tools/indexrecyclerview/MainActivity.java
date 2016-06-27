@@ -60,5 +60,6 @@ public class MainActivity extends AppCompatActivity {
         indexAdapter=new IndexAdapter(this,lists);
         indexRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         indexRecyclerView.setAdapter(indexAdapter);
+        indexRecyclerView.setLists(lists);
     }
 }

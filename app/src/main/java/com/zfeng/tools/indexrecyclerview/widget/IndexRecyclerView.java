@@ -12,6 +12,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
+
 /**
  * Created by zhaofeng on 16/6/21.
  */
@@ -20,6 +22,8 @@ public class IndexRecyclerView extends RecyclerView
     private IndexView indexView;
     private boolean ifShowLetter=false;
     private int currentLetterCount=0;
+
+    private ArrayList<String> lists=null;
 
     public IndexRecyclerView(Context context) {
         super(context);
@@ -96,6 +100,7 @@ public class IndexRecyclerView extends RecyclerView
                         currentLetterCount = count - 1;
 //                    Log.d("IndexRecycler","count="+count+"  letter = "+indexView.LetterList.charAt(currentLetterCount));
                         invalidate();
+                        smoothScrollToLetter(count);
                         return true;
                     }
                 }
@@ -113,6 +118,27 @@ public class IndexRecyclerView extends RecyclerView
         return super.onTouchEvent(e);
     }
 
+    private void smoothScrollToLetter(int count)
+    {
+        if(lists!=null&&lists.size()>0)
+        {
+            char letter=IndexView.LetterList.charAt(currentLetterCount);
+            int thisLetter=0;
+            for(int i=0;i<lists.size();++i)
+            {
+//                char upper=lists.get(i).toUpperCase().charAt(0);
+                if(lists.get(i).toUpperCase().charAt(0)==letter)
+                {
+//                    Log.d("IndexRecycler","letter="+lists.get(i)+" upper="+upper+"  thisLetter="+i);
+                    thisLetter=i;
+                }
+            }
+            this.smoothScrollToPosition(thisLetter);
+        }else{
+            Log.e(this.getClass().toString(),"You must put a list in this viewgroup!");
+        }
+    }
+
     private boolean checkOk(MotionEvent e)
     {
         RectF rectIndex=indexView.getRectIndex();
@@ -126,5 +152,9 @@ public class IndexRecyclerView extends RecyclerView
     protected void dispatchDraw(Canvas canvas) {
         indexView.dispatchDraw(canvas,ifShowLetter,currentLetterCount);
         super.dispatchDraw(canvas);
+    }
+    public void setLists(ArrayList<String> lists)
+    {
+        this.lists=lists;
     }
 }
