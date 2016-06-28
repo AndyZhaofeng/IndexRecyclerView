@@ -22,6 +22,7 @@ public class IndexRecyclerView extends RecyclerView
     private IndexView indexView;
     private boolean ifShowLetter=false;
     private int currentLetterCount=0;
+    private ChineseUtils chineseUtils;
 
     private ArrayList<String> lists=null;
 
@@ -43,6 +44,7 @@ public class IndexRecyclerView extends RecyclerView
     private void init()
     {
         indexView=new IndexView(getContext(),this);
+        chineseUtils=new ChineseUtils();
     }
 
     @Override
@@ -126,12 +128,23 @@ public class IndexRecyclerView extends RecyclerView
             int thisLetter=0;
             for(int i=0;i<lists.size();++i)
             {
-//                char upper=lists.get(i).toUpperCase().charAt(0);
-                if(lists.get(i).toUpperCase().charAt(0)==letter)
+                String firstLetter=chineseUtils.getFirstLetter(lists.get(i)).toUpperCase();
+
+                Log.d("IndexRecycler","firstLetter="+firstLetter+"  letter+"+letter);
+                if(firstLetter.equals(letter+""))
                 {
-//                    Log.d("IndexRecycler","letter="+lists.get(i)+" upper="+upper+"  thisLetter="+i);
                     thisLetter=i;
+                    Log.d("IndexRecycler","firstLetter="+firstLetter+"  thisLetter="+i+"  letter+"+letter);
                 }
+                /*if(chineseUtils.isChinese(lists.get(i).toUpperCase().charAt(0)))
+                {
+                }else{
+                    if(lists.get(i).toUpperCase().charAt(0)==letter)
+                    {
+//                    Log.d("IndexRecycler","letter="+lists.get(i)+" upper="+upper+"  thisLetter="+i);
+                        thisLetter=i;
+                    }
+                }*/
             }
             this.smoothScrollToPosition(thisLetter);
         }else{

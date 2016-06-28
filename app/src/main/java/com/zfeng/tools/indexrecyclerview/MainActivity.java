@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         lists.add("before");
         lists.add("publishing");
         lists.add("MainActivity");
+        lists.add("赵峰");
+        lists.add("判断");
+        lists.add("中文");
+        lists.add("利用");
         indexAdapter=new IndexAdapter(this,lists);
         indexRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         indexRecyclerView.setAdapter(indexAdapter);

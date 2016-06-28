@@ -12,6 +12,7 @@ import com.zfeng.tools.indexrecyclerview.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by zhaofeng on 16/6/21.
@@ -20,16 +21,23 @@ public class IndexAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
     private Context context;
     private ArrayList<String> lists;
+    private ChineseUtils chineseUtils;
 
     public IndexAdapter(Context context,@NonNull ArrayList<String> list)
     {
         this.context=context;
         lists=new ArrayList<>();
+        chineseUtils=new ChineseUtils();
         for(int i=0;i<list.size();++i)
         {
             lists.add(list.get(i).toLowerCase());
         }
-        Collections.sort(this.lists);
+        Collections.sort(this.lists, new Comparator<String>() {
+            @Override
+            public int compare(String lhs, String rhs) {
+                return chineseUtils.getFirstLetter(lhs).compareTo(chineseUtils.getFirstLetter(rhs));
+            }
+        });
     }
 
     class IndexViewHolder extends RecyclerView.ViewHolder
